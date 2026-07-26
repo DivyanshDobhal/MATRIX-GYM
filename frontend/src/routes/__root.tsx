@@ -119,7 +119,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
-    <GoogleOAuthProvider clientId="975466970314-km11pvm7o6hnrhcsr6cn8t71up0onqvv.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId="1017282507970-kmgjberub6i44e17p5arld1co4p9nljh.apps.googleusercontent.com">
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
