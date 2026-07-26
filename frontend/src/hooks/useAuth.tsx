@@ -57,17 +57,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = async (data: any) => {
     const res = await api.post('/auth/login', data);
+    if (res.data.token) localStorage.setItem('matrix_token', res.data.token);
     setUser(res.data.user);
   };
 
   const register = async (data: any) => {
     const res = await api.post('/auth/register', data);
+    if (res.data.token) localStorage.setItem('matrix_token', res.data.token);
     setUser(res.data.user);
   };
 
   const googleSignIn = async (accessToken: string) => {
     try {
       const res = await api.post('/auth/google', { accessToken });
+      if (res.data.token) localStorage.setItem('matrix_token', res.data.token);
       setUser(res.data.user);
     } catch (error) {
       console.error('Google Sign In Error:', error);
@@ -79,6 +82,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await api.post('/auth/logout');
       await firebaseSignOut(auth);
+      localStorage.removeItem('matrix_token');
       setUser(null);
     } catch (error) {
       console.error('Logout error:', error);

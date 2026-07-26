@@ -162,11 +162,17 @@ export default function ChatAssistantDashboard() {
     }
 
     try {
+      const token = localStorage.getItem("matrix_token");
+      const headers: HeadersInit = {
+        "Content-Type": "application/json"
+      };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const res = await fetch(`${API_URL}/ai/chat`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers,
         credentials: "include",
         body: JSON.stringify({ message: queryPayload })
       });
