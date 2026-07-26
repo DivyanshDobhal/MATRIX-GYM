@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, X, User as UserIcon, LogOut, Bell, Settings, CreditCard, LayoutDashboard } from "lucide-react";
+import { Menu, X, User as UserIcon, LogOut, Bell, Settings, CreditCard, LayoutDashboard, Clock, Trophy } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -15,11 +15,40 @@ const publicLinks = [
   { to: "/ai-assistant", label: "AI Coach" }
 ];
 
+const MOCK_NOTIFICATIONS = [
+  {
+    id: 1,
+    title: "Workout Scheduled",
+    description: "Your HIIT session starts in 2 hours.",
+    time: "2h ago",
+    icon: Clock,
+    color: "text-blue-400"
+  },
+  {
+    id: 2,
+    title: "Goal Reached!",
+    description: "You hit your weekly protein target.",
+    time: "5h ago",
+    icon: Trophy,
+    color: "text-yellow-400"
+  },
+  {
+    id: 3,
+    title: "New Program Available",
+    description: "Check out the new Elite Powerlifting program.",
+    time: "1d ago",
+    icon: Bell,
+    color: "text-[#39FF14]"
+  }
+];
+
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
 
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -36,6 +65,9 @@ export function Navbar() {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false);
+      }
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        setNotificationsOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -115,14 +147,56 @@ export function Navbar() {
           ) : (
             <div className="flex items-center gap-4">
               {/* Notification Bell */}
-              <motion.button 
-                whileHover={{ scale: 1.1, color: "#39FF14" }}
-                whileTap={{ scale: 0.9 }}
-                className="relative text-white/70 transition-colors p-2"
-              >
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#39FF14] rounded-full shadow-[0_0_5px_rgba(57,255,20,1)]"></span>
-              </motion.button>
+              <div className="relative" ref={notificationsRef}>
+                <motion.button 
+                  whileHover={{ scale: 1.1, color: "#39FF14" }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setNotificationsOpen(!notificationsOpen)}
+                  className={`relative transition-colors p-2 ${notificationsOpen ? 'text-[#39FF14]' : 'text-white/70'}`}
+                >
+                  <Bell className="w-5 h-5" />
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#39FF14] rounded-full shadow-[0_0_5px_rgba(57,255,20,1)]"></span>
+                </motion.button>
+                
+                <AnimatePresence>
+                  {notificationsOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 lg:-right-4 top-14 w-80 bg-[#0A0A0A] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 backdrop-blur-xl"
+                    >
+                      <div className="px-4 py-3 border-b border-white/5 flex justify-between items-center">
+                        <span className="text-sm font-bold text-white">Notifications</span>
+                        <span className="text-xs text-[#39FF14] cursor-pointer hover:underline">Mark all as read</span>
+                      </div>
+                      
+                      <div className="max-h-[300px] overflow-y-auto">
+                        {MOCK_NOTIFICATIONS.map((notif) => {
+                          const Icon = notif.icon;
+                          return (
+                            <div key={notif.id} className="flex gap-4 p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                              <div className={`mt-1 p-2 rounded-full bg-white/5 h-fit ${notif.color}`}>
+                                <Icon className="w-4 h-4" />
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm font-bold text-white">{notif.title}</p>
+                                <p className="text-xs text-white/60 mt-1 leading-snug">{notif.description}</p>
+                                <p className="text-[10px] text-white/40 mt-2 font-mono uppercase">{notif.time}</p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      
+                      <div className="p-3 border-t border-white/5 text-center bg-black/50 hover:bg-white/5 transition-colors cursor-pointer text-xs font-semibold text-white/70">
+                        View all notifications
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
               {/* User Avatar Dropdown */}
               <div className="relative" ref={dropdownRef}>
