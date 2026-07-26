@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import firebaseAdmin from '../config/firebase.js';
 import crypto from 'crypto';
+import axios from 'axios';
 
 // Generate JWT and send in cookie
 const sendTokenResponse = (user, statusCode, res) => {
@@ -108,7 +109,6 @@ export const googleAuth = async (req, res) => {
     const { accessToken } = req.body;
 
     // Use Google userinfo endpoint to verify access token
-    const { default: axios } = await import('axios');
     const response = await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo`, {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
@@ -132,7 +132,8 @@ export const googleAuth = async (req, res) => {
     sendTokenResponse(user, 200, res);
   } catch (error) {
     console.error('[Google Auth Error]', error.response?.data || error.message);
-    res.status(401).json({ success: false, message: 'Invalid Google token' });
+    const errorMessage = error.response?.data?.error_description || error.message;
+    res.status(401).json({ success: false, message: 'Google authentication failed on backend', details: errorMessage });
   }
 };
 
