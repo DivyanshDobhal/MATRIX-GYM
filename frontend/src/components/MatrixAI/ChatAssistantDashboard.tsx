@@ -90,23 +90,8 @@ export default function ChatAssistantDashboard() {
     }
   }, [activeChat?.messages, isTyping]);
 
-  // Request secure token exchange helper
-  const getAuthToken = async () => {
-    let token = localStorage.getItem("matrix_jwt_token");
-    if (token) return token;
-
-    try {
-      const res = await fetch(`${API_URL}/auth/guest`, { method: "POST" });
-      const data = await res.json();
-      if (res.ok && data.data?.token) {
-        localStorage.setItem("matrix_jwt_token", data.data.token);
-        return data.data.token;
-      }
-    } catch (e) {
-      console.error("Auth token issue failure:", e);
-    }
-    return null;
-  };
+  // We now rely purely on HTTP-Only cookies for authentication.
+  // The backend authMiddleware automatically parses the jwt cookie.
 
   // Extract memory constraints dynamically from user queries
   const scanMessageForContext = (msg: string, chat: Conversation): Partial<Conversation> => {
@@ -167,15 +152,7 @@ export default function ChatAssistantDashboard() {
     setInputText("");
     setIsTyping(true);
     setErrorState(null);
-
     const startTime = Date.now();
-    const token = await getAuthToken();
-
-    if (!token) {
-      setIsTyping(false);
-      setErrorState("Failed to retrieve authentication token.");
-      return;
-    }
 
     // Prepend local memory context hidden injection blocks to align Nvidia completions output
     let queryPayload = text;
@@ -188,9 +165,9 @@ export default function ChatAssistantDashboard() {
       const res = await fetch(`${API_URL}/ai/chat`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+          "Content-Type": "application/json"
         },
+        credentials: "include",
         body: JSON.stringify({ message: queryPayload })
       });
 
