@@ -1,0 +1,782 @@
+import { useState, useEffect, useRef } from "react";
+import {
+  Send, Mic, Paperclip, Search, Pin, Edit3, Trash2, Download, Plus,
+  MessageSquare, Star, Copy, RefreshCw, X, ChevronLeft, ChevronRight,
+  Sparkles, Check, Play, AlertTriangle
+} from "lucide-react";
+import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
+interface Message {
+  sender: "user" | "ai";
+  text: string;
+  timestamp: string;
+}
+
+interface Conversation {
+  id: string;
+  title: string;
+  messages: Message[];
+  isPinned: boolean;
+  goal?: string;
+  diet?: string;
+  name?: string;
+}
+
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV
+    ? "http://localhost:5050/api/v1"
+    : "https://server-ashy-rho.vercel.app/api/v1");
+
+export default function ChatAssistantDashboard() {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [activeChatId, setActiveChatId] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [inputText, setInputText] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [latency, setLatency] = useState<number | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
+  const [editTitleText, setEditTitleText] = useState("");
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Initialize and load conversations from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("matrix_ai_chats");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setConversations(parsed);
+        if (parsed.length > 0) {
+          setActiveChatId(parsed[0].id);
+        } else {
+          createNewChat();
+        }
+      } catch (e) {
+        createNewChat();
+      }
+    } else {
+      createNewChat();
+    }
+  }, []);
+
+  // Save to localStorage when chats state changes
+  const saveChats = (updated: Conversation[]) => {
+    setConversations(updated);
+    localStorage.setItem("matrix_ai_chats", JSON.stringify(updated));
+  };
+
+  const createNewChat = () => {
+    const newChat: Conversation = {
+      id: `chat_${Date.now()}`,
+      title: `Conversation ${conversations.length + 1}`,
+      messages: [],
+      isPinned: false
+    };
+    const updated = [newChat, ...conversations];
+    setActiveChatId(newChat.id);
+    saveChats(updated);
+  };
+
+  const activeChat = conversations.find((c) => c.id === activeChatId) || conversations[0];
+
+  // Auto Scroll
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, [activeChat?.messages, isTyping]);
+
+  // Request secure token exchange helper
+  const getAuthToken = async () => {
+    let token = localStorage.getItem("matrix_jwt_token");
+    if (token) return token;
+
+    try {
+      const res = await fetch(`${API_URL}/auth/guest`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok && data.data?.token) {
+        localStorage.setItem("matrix_jwt_token", data.data.token);
+        return data.data.token;
+      }
+    } catch (e) {
+      console.error("Auth token issue failure:", e);
+    }
+    return null;
+  };
+
+  // Extract memory constraints dynamically from user queries
+  const scanMessageForContext = (msg: string, chat: Conversation): Partial<Conversation> => {
+    const lower = msg.toLowerCase();
+    const update: Partial<Conversation> = {};
+
+    // Check for goal
+    if (lower.includes("muscle") || lower.includes("hypertrophy") || lower.includes("bulk")) {
+      update.goal = "muscle gain";
+    } else if (lower.includes("fat loss") || lower.includes("cut") || lower.includes("diet plan to lose")) {
+      update.goal = "fat loss";
+    }
+
+    // Check for diet
+    if (lower.includes("vegetarian") || lower.includes("vegan")) {
+      update.diet = "vegetarian";
+    } else if (lower.includes("keto")) {
+      update.diet = "keto";
+    }
+
+    // Check for name
+    if (lower.includes("my name is") || lower.includes("call me")) {
+      const match = msg.match(/(?:my name is|call me)\s+([A-Za-z]+)/i);
+      if (match && match[1]) {
+        update.name = match[1];
+      }
+    }
+
+    return update;
+  };
+
+  const handleSendMessage = async (text: string, isRegenerate = false) => {
+    if (!text.trim() || isTyping) return;
+
+    const timestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    let updatedMessages = [...activeChat.messages];
+
+    if (!isRegenerate) {
+      updatedMessages.push({ sender: "user", text, timestamp });
+    }
+
+    // Scan messages to update local memory context
+    const contextUpdates = scanMessageForContext(text, activeChat);
+    const goal = contextUpdates.goal || activeChat.goal;
+    const diet = contextUpdates.diet || activeChat.diet;
+    const name = contextUpdates.name || activeChat.name;
+
+    const updatedChat: Conversation = {
+      ...activeChat,
+      messages: updatedMessages,
+      goal,
+      diet,
+      name
+    };
+
+    const nextChats = conversations.map((c) => (c.id === activeChat.id ? updatedChat : c));
+    saveChats(nextChats);
+    setInputText("");
+    setIsTyping(true);
+    setErrorState(null);
+
+    const startTime = Date.now();
+    const token = await getAuthToken();
+
+    if (!token) {
+      setIsTyping(false);
+      setErrorState("Failed to retrieve authentication token.");
+      return;
+    }
+
+    // Prepend local memory context hidden injection blocks to align Nvidia completions output
+    let queryPayload = text;
+    if (goal || diet || name) {
+      const contextPrefix = `[Context: ${name ? `User name is ${name}. ` : ""}${goal ? `Goal is ${goal}. ` : ""}${diet ? `Diet preference is ${diet}.` : ""}] `;
+      queryPayload = `${contextPrefix}${text}`;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/ai/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ message: queryPayload })
+      });
+
+      const data = await res.json();
+      setLatency(Number(((Date.now() - startTime) / 1000).toFixed(1)));
+
+      if (res.ok && data.data?.reply) {
+        const aiMessage: Message = {
+          sender: "ai",
+          text: data.data.reply,
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        };
+
+        // If this was the first message, automatically rename the conversation
+        let title = activeChat.title;
+        if (updatedMessages.length === 1) {
+          title = text.length > 22 ? `${text.substring(0, 20)}...` : text;
+        }
+
+        const finalChat: Conversation = {
+          ...updatedChat,
+          title,
+          messages: [...updatedMessages, aiMessage]
+        };
+
+        saveChats(conversations.map((c) => (c.id === activeChat.id ? finalChat : c)));
+      } else {
+        throw new Error(data.message || "Failed to communicate with completion engine.");
+      }
+    } catch (e: any) {
+      console.error("AI Coach query failed:", e);
+      setErrorState(e.message || "Encountered a gateway error. Please try again.");
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  const [errorState, setErrorState] = useState<string | null>(null);
+
+  // Sidebar actions
+  const handleDeleteChat = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const filtered = conversations.filter((c) => c.id !== id);
+    if (filtered.length === 0) {
+      const defaultChat = {
+        id: `chat_${Date.now()}`,
+        title: "Conversation 1",
+        messages: [],
+        isPinned: false
+      };
+      saveChats([defaultChat]);
+      setActiveChatId(defaultChat.id);
+    } else {
+      saveChats(filtered);
+      if (activeChatId === id) {
+        setActiveChatId(filtered[0].id);
+      }
+    }
+    toast.success("Conversation deleted.");
+  };
+
+  const handleTogglePin = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const updated = conversations.map((c) =>
+      c.id === id ? { ...c, isPinned: !c.isPinned } : c
+    );
+    saveChats(updated);
+    toast.success(
+      updated.find((c) => c.id === id)?.isPinned ? "Conversation pinned" : "Conversation unpinned"
+    );
+  };
+
+  const startEditingTitle = (chat: Conversation, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingTitleId(chat.id);
+    setEditTitleText(chat.title);
+  };
+
+  const saveTitleEdit = (id: string) => {
+    if (!editTitleText.trim()) return;
+    const updated = conversations.map((c) =>
+      c.id === id ? { ...c, title: editTitleText } : c
+    );
+    saveChats(updated);
+    setEditingTitleId(null);
+  };
+
+  const handleClearAllChats = () => {
+    const defaultChat = {
+      id: `chat_${Date.now()}`,
+      title: "Conversation 1",
+      messages: [],
+      isPinned: false
+    };
+    saveChats([defaultChat]);
+    setActiveChatId(defaultChat.id);
+    toast.success("All conversations cleared.");
+  };
+
+  const handleExportChat = (chat: Conversation) => {
+    const rawText = chat.messages
+      .map((m) => `[${m.timestamp}] ${m.sender === "user" ? "USER" : "COACH"}: ${m.text}`)
+      .join("\n\n");
+    const blob = new Blob([rawText], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${chat.title.toLowerCase().replace(/\s+/g, "_")}_transcript.txt`;
+    a.click();
+    toast.success("Chat history exported successfully.");
+  };
+
+  // Keyboard triggers
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage(inputText);
+    }
+  };
+
+  // Speech input simulator
+  const triggerVoiceInput = () => {
+    toast.info("Speech recognition active. Speak into mic...", {
+      duration: 3000,
+      description: "Speech-to-text simulation in progress"
+    });
+    setTimeout(() => {
+      setInputText("Generate a HIIT conditioning routine");
+      toast.success("Voice input converted successfully!");
+    }, 2200);
+  };
+
+  // Filter chats by search query
+  const filteredChats = conversations.filter((c) =>
+    c.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const pinnedChats = filteredChats.filter((c) => c.isPinned);
+  const unpinnedChats = filteredChats.filter((c) => !c.isPinned);
+
+  const renderMarkdown = (text: string) => (
+    <div className="text-xs text-white/70 leading-relaxed font-medium prose prose-invert prose-sm max-w-none">
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
+    </div>
+  );
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-8 flex gap-6 h-[720px]">
+      {/* 1. Sidebar */}
+      {sidebarOpen && (
+        <div className="w-64 shrink-0 glass rounded-3xl border border-white/5 p-4 flex flex-col justify-between h-full bg-black/40">
+          <div className="space-y-4 flex-1 flex flex-col overflow-hidden">
+            {/* Search and New chat button */}
+            <div className="flex gap-2">
+              <button
+                onClick={createNewChat}
+                className="flex-1 rounded-2xl bg-neon text-black font-black text-xs uppercase tracking-wider py-3 flex items-center justify-center gap-1.5 hover:opacity-90 transition hover:shadow-[0_0_15px_rgba(57,255,20,0.3)]"
+              >
+                <Plus className="h-4 w-4" /> New Chat
+              </button>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="rounded-2xl border border-white/10 p-3 text-white/60 hover:text-white transition"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search chats..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-xl bg-white/5 border border-white/10 pl-9 pr-4 py-2.5 text-xs text-white placeholder:text-white/30 focus:border-neon focus:outline-none"
+              />
+              <Search className="absolute left-3 top-3 h-3.5 w-3.5 text-white/30" />
+            </div>
+
+            {/* Conversations list container */}
+            <div className="flex-1 overflow-y-auto space-y-3.5 scrollbar-thin pr-1">
+              {/* Pinned Section */}
+              {pinnedChats.length > 0 && (
+                <div className="space-y-1">
+                  <span className="text-[9px] uppercase tracking-wider text-neon font-black block pl-2 mb-1.5 flex items-center gap-1">
+                    <Pin className="h-3 w-3" /> Pinned
+                  </span>
+                  {pinnedChats.map((c) => (
+                    <ConversationItem
+                      key={c.id}
+                      chat={c}
+                      activeId={activeChat?.id}
+                      onSelect={() => setActiveChatId(c.id)}
+                      onPin={(e) => handleTogglePin(c.id, e)}
+                      onDelete={(e) => handleDeleteChat(c.id, e)}
+                      onExport={() => handleExportChat(c)}
+                      editingId={editingTitleId}
+                      editText={editTitleText}
+                      onEditChange={setEditTitleText}
+                      onSaveEdit={() => saveTitleEdit(c.id)}
+                      onStartEdit={(e) => startEditingTitle(c, e)}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Active Conversations Section */}
+              <div className="space-y-1">
+                {pinnedChats.length > 0 && (
+                  <span className="text-[9px] uppercase tracking-wider text-white/40 block pl-2 mb-1.5">
+                    Conversations
+                  </span>
+                )}
+                {unpinnedChats.map((c) => (
+                  <ConversationItem
+                    key={c.id}
+                    chat={c}
+                    activeId={activeChat?.id}
+                    onSelect={() => setActiveChatId(c.id)}
+                    onPin={(e) => handleTogglePin(c.id, e)}
+                    onDelete={(e) => handleDeleteChat(c.id, e)}
+                    onExport={() => handleExportChat(c)}
+                    editingId={editingTitleId}
+                    editText={editTitleText}
+                    onEditChange={setEditTitleText}
+                    onSaveEdit={() => saveTitleEdit(c.id)}
+                    onStartEdit={(e) => startEditingTitle(c, e)}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Clear All */}
+          <button
+            onClick={handleClearAllChats}
+            className="w-full mt-4 rounded-xl border border-white/10 hover:border-red-500/30 hover:bg-red-500/5 py-2.5 text-[10px] text-white/50 hover:text-red-400 font-bold uppercase tracking-wider transition flex items-center justify-center gap-1.5"
+          >
+            <Trash2 className="h-3.5 w-3.5" /> Clear All Chats
+          </button>
+        </div>
+      )}
+
+      {/* 2. Main Chat Panel */}
+      <div className="flex-1 glass rounded-3xl border border-white/5 flex flex-col h-full overflow-hidden bg-black/20">
+        {/* Header */}
+        <div className="border-b border-white/5 px-6 py-4.5 flex justify-between items-center bg-black/30 shrink-0">
+          <div className="flex items-center gap-3">
+            {!sidebarOpen && (
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="rounded-xl border border-white/10 p-2.5 text-white/60 hover:text-white transition mr-1"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            )}
+            <div className="h-9 w-9 rounded-xl bg-neon/10 border border-neon/20 flex items-center justify-center text-neon">
+              <Sparkles className="h-4.5 w-4.5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-display text-sm font-black text-white">🤖 MATRIX AI</h3>
+                <span className="text-[8px] bg-white/5 border border-white/10 text-white/50 px-2 py-0.5 rounded font-black tracking-wider uppercase">
+                  Powered by NVIDIA AI
+                </span>
+              </div>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-neon animate-pulse" />
+                <span className="text-[9px] font-bold text-white/40 uppercase tracking-wider">Online</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Latency and parameters display */}
+          <div className="flex items-center gap-3 text-[10px] text-white/50 font-semibold">
+            {latency !== null && (
+              <div className="glass px-3 py-1.5 rounded-xl border-white/5">
+                Latency: <strong className="text-neon">{latency}s</strong>
+              </div>
+            )}
+            {(activeChat?.goal || activeChat?.diet || activeChat?.name) && (
+              <div className="glass px-3 py-1.5 rounded-xl border-white/5 flex gap-2">
+                {activeChat.name && <span>👤 {activeChat.name}</span>}
+                {activeChat.goal && <span className="uppercase text-neon">{activeChat.goal}</span>}
+                {activeChat.diet && <span className="uppercase text-white/40">{activeChat.diet}</span>}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Viewport content */}
+        <div
+          ref={containerRef}
+          className="flex-1 overflow-y-auto p-6 space-y-5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/5"
+        >
+          {activeChat?.messages.length === 0 ? (
+            /* Welcome View */
+            <div className="h-full flex flex-col justify-center items-center max-w-xl mx-auto text-center space-y-8 py-10">
+              <div className="space-y-3">
+                <div className="text-4xl">👋</div>
+                <h2 className="font-display text-2xl font-black text-white">Hello, I'm MATRIX AI</h2>
+                <p className="text-xs text-white/50 leading-relaxed">
+                  Your intelligent fitness companion. I can compute calorie logs, organize splits, suggest plant-based nutrition charts, or simply discuss daily topics with you.
+                </p>
+              </div>
+
+              {/* Quick Launch prompt grid */}
+              <div className="grid sm:grid-cols-2 gap-3 w-full">
+                {[
+                  { prompt: "Create today's workout", desc: "Custom strength lifts checklist", icon: "💪" },
+                  { prompt: "Plan my meals", desc: "Macronutrient diet profiles", icon: "🥗" },
+                  { prompt: "Calculate my calories", desc: "Energy expenditure estimations", icon: "🔥" },
+                  { prompt: "Analyze my progress", desc: "Tonnage and metric logs", icon: "📈" },
+                  { prompt: "Motivate me", desc: "Inspirational fitness coaching", icon: "😊" },
+                  { prompt: "Tell me a joke", desc: "Light gym humor break", icon: "😂" },
+                  { prompt: "Ask me anything", desc: "General chat topics", icon: "🌍" }
+                ].map((s) => (
+                  <button
+                    key={s.prompt}
+                    onClick={() => handleSendMessage(s.prompt)}
+                    className="glass border-white/5 text-left p-4 rounded-2xl hover:border-neon hover:shadow-[0_0_15px_rgba(57,255,20,0.05)] transition duration-200 flex gap-3.5 items-start group"
+                  >
+                    <span className="text-lg mt-0.5">{s.icon}</span>
+                    <div>
+                      <h4 className="text-xs font-black text-white group-hover:text-neon transition">
+                        {s.prompt}
+                      </h4>
+                      <p className="text-[10px] text-white/40 mt-0.5 leading-normal">{s.desc}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            /* Chat Stream view */
+            activeChat?.messages.map((m, idx) => (
+              <div
+                key={idx}
+                className={`flex gap-4 max-w-[85%] ${
+                  m.sender === "user" ? "ml-auto flex-row-reverse" : "mr-auto"
+                }`}
+              >
+                {/* Bubble avatar */}
+                <div
+                  className={`h-8 w-8 rounded-lg shrink-0 flex items-center justify-center text-xs font-black select-none ${
+                    m.sender === "user" ? "bg-neon text-black" : "bg-white/5 border border-white/10 text-white/50"
+                  }`}
+                >
+                  {m.sender === "user" ? "U" : "M"}
+                </div>
+
+                {/* Bubble context */}
+                <div className="space-y-1.5 flex-1">
+                  <div
+                    className={`rounded-2xl p-4.5 relative group border transition-all duration-300 ${
+                      m.sender === "user"
+                        ? "bg-neon text-black font-semibold shadow-[0_0_15px_rgba(57,255,20,0.15)] border-neon/30"
+                        : "glass border-white/5"
+                    }`}
+                  >
+                    {m.sender === "user" ? (
+                      <p className="text-xs font-bold leading-relaxed">{m.text}</p>
+                    ) : (
+                      <div className="space-y-1">{renderMarkdown(m.text)}</div>
+                    )}
+
+                    {/* Bubble actions (Copy, regenerate) */}
+                    {m.sender === "ai" && (
+                      <div className="absolute right-4.5 bottom-3.5 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-charcoal/90 border border-white/10 rounded-lg p-1">
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(m.text);
+                            toast.success("Response copied to clipboard.");
+                          }}
+                          title="Copy response"
+                          className="p-1 hover:text-neon text-white/60 transition"
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            // Find the last user query before this response
+                            const userMessages = activeChat.messages.slice(0, idx).filter((msg) => msg.sender === "user");
+                            if (userMessages.length > 0) {
+                              handleSendMessage(userMessages[userMessages.length - 1].text, true);
+                            }
+                          }}
+                          title="Regenerate response"
+                          className="p-1 hover:text-neon text-white/60 transition"
+                        >
+                          <RefreshCw className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Timestamp */}
+                  <span className="text-[8px] block text-white/30 tracking-widest pl-2">
+                    {m.timestamp}
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
+
+          {isTyping && (
+            /* Blinking dot typing loader */
+            <div className="flex gap-4 max-w-[80%] mr-auto">
+              <div className="h-8 w-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-xs text-white/40 select-none">
+                M
+              </div>
+              <div className="glass border-white/5 rounded-2xl px-5 py-3.5 flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 bg-neon rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                <span className="h-1.5 w-1.5 bg-neon rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                <span className="h-1.5 w-1.5 bg-neon rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+              </div>
+            </div>
+          )}
+
+          {errorState && (
+            /* Error display card */
+            <div className="bg-red-950/20 border border-red-500/20 rounded-2xl p-4 flex items-center justify-between gap-4 max-w-xl mx-auto text-xs text-red-400">
+              <span className="flex items-center gap-2">
+                <AlertTriangle className="h-4.5 w-4.5 text-red-400 shrink-0" />
+                <span>{errorState}</span>
+              </span>
+              <button
+                onClick={() => {
+                  const userMessages = activeChat.messages.filter((m) => m.sender === "user");
+                  if (userMessages.length > 0) {
+                    handleSendMessage(userMessages[userMessages.length - 1].text, true);
+                  }
+                }}
+                className="rounded-xl border border-red-500/20 bg-red-500/10 px-3.5 py-2 font-bold hover:bg-red-500/20 transition flex items-center gap-1.5 text-[9px] uppercase shrink-0"
+              >
+                <RefreshCw className="h-3 w-3 animate-spin" /> Retry
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Input box */}
+        <div className="border-t border-white/5 p-4 bg-black/40 shrink-0 space-y-2">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSendMessage(inputText);
+            }}
+            className="flex items-center gap-3 bg-white/[0.01] border border-white/5 rounded-2xl px-4 py-2"
+          >
+            {/* Future attachment trigger */}
+            <button
+              type="button"
+              onClick={() => toast.info("Attachment uploading support coming soon!")}
+              className="text-white/40 hover:text-white transition p-1.5"
+            >
+              <Paperclip className="h-4 w-4" />
+            </button>
+
+            {/* Input textarea */}
+            <textarea
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value.substring(0, 800))}
+              onKeyDown={handleKeyDown}
+              placeholder="Message MATRIX AI..."
+              rows={1}
+              className="flex-1 bg-transparent resize-none text-xs text-white placeholder:text-white/30 focus:outline-none py-2 scrollbar-none"
+              style={{ maxHeight: "120px" }}
+            />
+
+            {/* Character counter */}
+            <span className="text-[9px] text-white/30 font-semibold select-none">
+              {inputText.length}/800
+            </span>
+
+            {/* Speech microphone trigger */}
+            <button
+              type="button"
+              onClick={triggerVoiceInput}
+              className="text-white/40 hover:text-white transition p-1.5"
+            >
+              <Mic className="h-4 w-4" />
+            </button>
+
+            {/* Submit button */}
+            <button
+              type="submit"
+              disabled={isTyping || !inputText.trim()}
+              className="grid h-8.5 w-8.5 place-items-center rounded-xl bg-neon text-black hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition shadow-[0_0_10px_rgba(57,255,20,0.1)]"
+            >
+              <Send className="h-3.5 w-3.5" />
+            </button>
+          </form>
+          <div className="text-[8px] text-white/20 text-center tracking-wide uppercase font-semibold">
+            Shift + Enter for new lines // Chat logs are persisted locally
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface ConversationItemProps {
+  chat: Conversation;
+  activeId: string;
+  onSelect: () => void;
+  onPin: (e: React.MouseEvent) => void;
+  onDelete: (e: React.MouseEvent) => void;
+  onExport: () => void;
+  editingId: string | null;
+  editText: string;
+  onEditChange: (val: string) => void;
+  onSaveEdit: () => void;
+  onStartEdit: (e: React.MouseEvent) => void;
+}
+
+function ConversationItem({
+  chat, activeId, onSelect, onPin, onDelete, onExport,
+  editingId, editText, onEditChange, onSaveEdit, onStartEdit
+}: ConversationItemProps) {
+  const isActive = chat.id === activeId;
+  const isEditing = chat.id === editingId;
+
+  return (
+    <div
+      onClick={onSelect}
+      className={`group relative rounded-xl p-3 flex items-center justify-between cursor-pointer border transition-all duration-200 ${
+        isActive
+          ? "bg-neon/10 border-neon/30 text-white font-bold"
+          : "bg-white/[0.01] border-transparent hover:bg-white/5 text-white/60 hover:text-white"
+      }`}
+    >
+      <div className="flex items-center gap-2 flex-1 min-w-0 pr-6">
+        <MessageSquare className={`h-4 w-4 shrink-0 ${isActive ? "text-neon" : "text-white/30"}`} />
+        
+        {isEditing ? (
+          <input
+            type="text"
+            value={editText}
+            onChange={(e) => onEditChange(e.target.value)}
+            onBlur={onSaveEdit}
+            onKeyDown={(e) => e.key === "Enter" && onSaveEdit()}
+            autoFocus
+            className="bg-black/50 border border-neon/40 text-xs px-2 py-0.5 rounded text-white w-full focus:outline-none"
+          />
+        ) : (
+          <span className="text-xs truncate font-medium">{chat.title}</span>
+        )}
+      </div>
+
+      {/* Action buttons list on hover */}
+      {!isEditing && (
+        <div className="absolute right-2.5 top-2.5 hidden group-hover:flex items-center gap-1 bg-black/85 backdrop-blur-md rounded-lg p-0.5 border border-white/5 shadow-md">
+          <button
+            onClick={onPin}
+            title={chat.isPinned ? "Unpin chat" : "Pin chat"}
+            className={`p-1 rounded hover:bg-white/10 transition ${chat.isPinned ? "text-neon" : "text-white/50"}`}
+          >
+            <Pin className="h-3 w-3" />
+          </button>
+          <button
+            onClick={onStartEdit}
+            title="Rename chat"
+            className="p-1 rounded hover:bg-white/10 text-white/50 hover:text-neon transition"
+          >
+            <Edit3 className="h-3 w-3" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onExport();
+            }}
+            title="Export transcript"
+            className="p-1 rounded hover:bg-white/10 text-white/50 hover:text-neon transition"
+          >
+            <Download className="h-3 w-3" />
+          </button>
+          <button
+            onClick={onDelete}
+            title="Delete conversation"
+            className="p-1 rounded hover:bg-white/10 text-white/50 hover:text-red-400 transition"
+          >
+            <Trash2 className="h-3 w-3" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,10 @@
+node_modules/
+.env*
+!.env.example
+.DS_Store
+dist/
+build/
+.vite/
+.workspace/
+matrix-fitness-source.zip
+matrix-fitness-sourceeee/

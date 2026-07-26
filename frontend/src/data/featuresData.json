@@ -1,0 +1,192 @@
+{
+  "certified-trainers": {
+    "title": "Certified Trainers",
+    "description": "Work 1-on-1 with elite coaches accredited by NASM, ACE, CSCS and CrossFit-L2. Personalizing biomechanics, recovery, and program design to fit your DNA.",
+    "trainers": [
+      {
+        "name": "John Carter",
+        "role": "Head of Strength & Conditioning",
+        "experience": "10+ Years Experience",
+        "rating": 5,
+        "languages": ["English", "Spanish"],
+        "availability": "Mon, Wed, Fri (07:00 AM - 02:00 PM)",
+        "certs": ["NASM Certified Personal Trainer", "ACE Certified Coach", "CrossFit Level 2"]
+      },
+      {
+        "name": "Sarah Wilson",
+        "role": "Yoga & Mobility Lead",
+        "experience": "6 Years Experience",
+        "rating": 5,
+        "languages": ["English", "French"],
+        "availability": "Tue, Thu, Sat (08:00 AM - 04:00 PM)",
+        "certs": ["ISSA Certified Specialist", "Yoga Alliance RYT-500", "Certified Nutrition Coach"]
+      },
+      {
+        "name": "David Miller",
+        "role": "Olympic Weightlifting Coach",
+        "experience": "8 Years Experience",
+        "rating": 5,
+        "languages": ["English", "German"],
+        "availability": "Mon, Tue, Thu (03:00 PM - 09:00 PM)",
+        "certs": ["NSCA Certified Strength & Conditioning Specialist (CSCS)", "USAW Olympic Weightlifting Coach"]
+      },
+      {
+        "name": "Emily Brown",
+        "role": "Functional Conditioning Specialist",
+        "experience": "5 Years Experience",
+        "rating": 5,
+        "languages": ["English"],
+        "availability": "Wed, Fri, Sat (01:00 PM - 08:00 PM)",
+        "certs": ["Functional Movement Screen (FMS)", "NASM PES", "CPR & AED Certified"]
+      }
+    ]
+  },
+  "smart-equipment": {
+    "title": "Smart Equipment",
+    "description": "Train on sensor-driven, AI-connected machinery that dynamically tracks repetitions, measures power output, syncs heart rates, and provides instant biomechanical feedback.",
+    "equipment": [
+      {
+        "name": "Technogym Smart Treadmill",
+        "purpose": "Zone-based cardiovascular pacing",
+        "muscles": "Quads, Calves, Cardiovascular System",
+        "difficulty": "Beginner to Advanced",
+        "features": ["Tracks speed/incline", "Heart rate zone sync", "Virtual runs & trails", "AI posture tracking"]
+      },
+      {
+        "name": "Rogue Power Rack",
+        "purpose": "Heavy compound free-weight lifting",
+        "muscles": "Quadriceps, Glutes, Hamstrings, Core",
+        "difficulty": "Intermediate to Advanced",
+        "features": ["Laser-cut safeties", "Band peg attachments", "Multi-grip pull up bar"]
+      },
+      {
+        "name": "Hammer Strength Iso-Lateral Chest Press",
+        "purpose": "Isolated convergent chest press load",
+        "muscles": "Pectorals, Anterior Deltoids, Triceps",
+        "difficulty": "Beginner to Intermediate",
+        "features": ["Converging movement path", "Independent arm motions", "Smooth plate-loaded linkage"]
+      },
+      {
+        "name": "Concept2 Rowing Machine",
+        "purpose": "Full-body metabolic conditioning",
+        "muscles": "Lats, Hamstrings, Biceps, Core",
+        "difficulty": "All Levels",
+        "features": ["PM5 performance monitor", "Bluetooth heart rate connection", "Real-time force curve tracking"]
+      },
+      {
+        "name": "Assault Air Bike",
+        "purpose": "Maximum heart rate interval conditioning",
+        "muscles": "Full Body Cardio, Shoulders, Quads",
+        "difficulty": "Intermediate to Advanced",
+        "features": ["Progressive wind resistance", "Target interval presets", "Wattage output tracking"]
+      },
+      {
+        "name": "Smart Cable Machine",
+        "purpose": "Multi-planar isolation drills",
+        "muscles": "Full body rotation & stabilizer control",
+        "difficulty": "All Levels",
+        "features": ["Tracks repetition cadence", "Measures explosive power output", "Weight stack sensors"]
+      },
+      {
+        "name": "Olympic Platform",
+        "purpose": "Olympic lifting & drop-heavy drops",
+        "muscles": "Posterior Chain, Gluteals, Shoulders",
+        "difficulty": "Advanced",
+        "features": ["High-density rubber dampening", "Solid wood center grip", "Barbell rotation space"]
+      },
+      {
+        "name": "Functional Rig",
+        "purpose": "Suspension & gymnastics bodyweight drill",
+        "muscles": "Core stabilizers, Shoulders, Grip",
+        "difficulty": "Intermediate",
+        "features": ["Wall ball targets", "Suspension ring anchors", "Monkey bars"]
+      },
+      {
+        "name": "Dumbbell Zone",
+        "purpose": "Unilateral hypertrophy & isolation",
+        "muscles": "Targeted muscle groups",
+        "difficulty": "All Levels",
+        "features": ["Urethane round dumbbells 2.5kg - 60kg", "Chrome ergonomic grip"]
+      },
+      {
+        "name": "Recovery Area",
+        "purpose": "Post-workout myofascial release",
+        "muscles": "Full body fascia & lymphatic flushing",
+        "difficulty": "Beginner",
+        "features": ["Theragun percussion massagers", "Normatec compression boots", "Infrared heat lamps"]
+      }
+    ]
+  },
+  "nutrition-guidance": {
+    "title": "Nutrition Guidance",
+    "description": "Unlock personalized meal templates, interactive macro calculations, and direct supplement advice guided by our certified nutritionists.",
+    "nutritionist": {
+      "name": "Dr. Sarah Wilson",
+      "role": "Lead Sports Dietitian",
+      "certs": ["PhD in Human Nutrition", "CSSD Board Certified", "ISSA Coach"],
+      "bio": "Dr. Wilson has coached elite endurance runners and weightlifters, optimizing biological glycogen ratios and recovery timelines."
+    },
+    "supplements": [
+      { "name": "Whey Isolate Protein", "purpose": "Muscle protein synthesis & structural rebuild", "dosage": "25-30g post-workout" },
+      { "name": "Creatine Monohydrate", "purpose": "Increase phosphocreatine ATP storage and power output", "dosage": "5g daily" },
+      { "name": "Omega-3 Fish Oil", "purpose": "Joint anti-inflammatory support & cell membrane health", "dosage": "2000mg daily" },
+      { "name": "Sports Multivitamin", "purpose": "Fill micronutrient gaps, support metabolism", "dosage": "1 tablet with breakfast" }
+    ]
+  },
+  "flexible-timings": {
+    "title": "Flexible Timings",
+    "description": "MATRIX is open seven days a week from 5:00 AM until midnight. Plan around peak capacity or sign up for classes that fit your calendar.",
+    "schedule": {
+      "Monday": "5:00 AM - 12:00 AM",
+      "Tuesday": "5:00 AM - 12:00 AM",
+      "Wednesday": "5:00 AM - 12:00 AM",
+      "Thursday": "5:00 AM - 12:00 AM",
+      "Friday": "5:00 AM - 12:00 AM",
+      "Saturday": "5:00 AM - 10:00 PM",
+      "Sunday": "6:00 AM - 08:00 PM"
+    },
+    "occupancy": {
+      "peakHours": "07:00 AM - 09:30 AM & 06:00 PM - 08:30 PM",
+      "offPeak": "11:00 AM - 04:00 PM & 09:00 PM - 12:00 AM",
+      "liveRate": 64
+    },
+    "classes": [
+      { "name": "Sunrise Spin (Zone 2)", "time": "06:15 AM", "days": "Mon, Wed, Fri" },
+      { "name": "Barbell Conditioning (WOD)", "time": "08:00 AM", "days": "Tue, Thu" },
+      { "name": "Sunset Vinyasa Flow", "time": "06:30 PM", "days": "Mon, Tue, Thu" },
+      { "name": "Power Lifting Form Check", "time": "07:30 PM", "days": "Wed, Fri" },
+      { "name": "Weekend Team CrossFit WOD", "time": "09:00 AM", "days": "Sat" }
+    ]
+  },
+  "mobile-app": {
+    "title": "Mobile App",
+    "description": "Log into your personal profile. Generate QR codes for entry, book dynamic time slots, track exercise progression, and sync wearables.",
+    "features": [
+      "Contactless QR code scanner check-in",
+      "Real-time workout logging & tracking",
+      "Interactive class schedule bookings",
+      "Daily macro & meal tracking integration",
+      "Push notifications for coaching check-ins",
+      "Gamified badge achievements & challenges"
+    ],
+    "wearables": [
+      { "name": "Apple Watch", "metric": "Syncs heart rate and calorie metrics" },
+      { "name": "Google Fit", "metric": "Integrates steps, sleep, and workouts" },
+      { "name": "Fitbit", "metric": "Syncs continuous heart rate trend logs" }
+    ]
+  },
+  "performance-tracking": {
+    "title": "Performance Tracking",
+    "description": "Access your personal analytics portal. Check body fat reduction trends, 1RM compound increases, and export official check-in reports.",
+    "milestones": [
+      { "title": "Consistency Award", "desc": "Completed 15 workouts in a single calendar month" },
+      { "title": "Volume Master", "desc": "Moved an aggregate of 25,000 kg across lifting sessions" },
+      { "title": "Cardio Catalyst", "desc": "Maintained Zone 5 heart rate for over 15 minutes" }
+    ],
+    "metrics": [
+      { "name": "Avg Strength Increase", "value": "18.5 %" },
+      { "name": "Average Active Streak", "value": "12 Days" },
+      { "name": "Liters of Hydration logged", "value": "124 L" }
+    ]
+  }
+}

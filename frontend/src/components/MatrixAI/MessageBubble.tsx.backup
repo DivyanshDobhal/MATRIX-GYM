@@ -1,0 +1,86 @@
+interface MessageBubbleProps {
+  message: {
+    sender: "user" | "ai";
+    text: string;
+    timestamp: string;
+  };
+}
+
+export default function MessageBubble({ message }: MessageBubbleProps) {
+  const isUser = message.sender === "user";
+
+  // Simple formatter helper to parse basic markdown headers and bolding
+  const formatMarkdown = (text: string) => {
+    return text.split("\n").map((line, idx) => {
+      let formattedLine = line;
+
+      // Handle bold text **word**
+      const boldRegex = /\*\*(.*?)\*\*/g;
+      const parts = [];
+      let lastIndex = 0;
+      let match;
+
+      while ((match = boldRegex.exec(formattedLine)) !== null) {
+        if (match.index > lastIndex) {
+          parts.push(formattedLine.substring(lastIndex, match.index));
+        }
+        parts.push(<strong key={match.index} className="font-black text-neon">{match[1]}</strong>);
+        lastIndex = boldRegex.lastIndex;
+      }
+      
+      if (lastIndex < formattedLine.length) {
+        parts.push(formattedLine.substring(lastIndex));
+      }
+
+      const finalContent = parts.length > 0 ? parts : formattedLine;
+
+      // Render headers
+      if (line.startsWith("🏋️") || line.startsWith("📅") || line.startsWith("🥗") || line.startsWith("💧") || line.startsWith("😴") || line.startsWith("⚠️") || line.startsWith("🔥")) {
+        return (
+          <h4 key={idx} className="font-display text-xs uppercase font-black tracking-wider text-neon mt-4 mb-2 flex items-center gap-1">
+            {finalContent}
+          </h4>
+        );
+      }
+
+      if (line.trim().startsWith("-") || line.trim().startsWith("✓")) {
+        return (
+          <div key={idx} className="pl-4 text-xs text-white/80 leading-relaxed py-0.5 relative after:absolute after:left-1.5 after:top-2.5 after:h-1 after:w-1 after:rounded-full after:bg-neon">
+            {finalContent}
+          </div>
+        );
+      }
+
+      return (
+        <p key={idx} className="text-xs text-white/70 leading-relaxed py-1">
+          {finalContent}
+        </p>
+      );
+    });
+  };
+
+  return (
+    <div
+      className={`max-w-[85%] rounded-2xl p-4.5 space-y-1 ${
+        isUser
+          ? "bg-neon text-black font-semibold ml-auto shadow-[0_0_15px_rgba(57,255,20,0.15)] border border-neon/30"
+          : "glass border-white/5 mr-auto"
+      }`}
+    >
+      <div className="space-y-1">
+        {isUser ? (
+          <p className="text-xs font-bold leading-relaxed">{message.text}</p>
+        ) : (
+          <div className="space-y-1">{formatMarkdown(message.text)}</div>
+        )}
+      </div>
+      <span
+        className={`text-[8px] block text-right font-medium tracking-wider uppercase mt-1.5 ${
+          isUser ? "text-black/60" : "text-white/30"
+        }`}
+      >
+        {message.timestamp}
+      </span>
+    </div>
+  );
+}

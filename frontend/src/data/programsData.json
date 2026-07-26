@@ -1,0 +1,286 @@
+{
+  "strength-training": {
+    "title": "Strength Training",
+    "difficulty": "Intermediate - Advanced",
+    "duration": "12 Weeks",
+    "bannerText": "Build raw power, dense muscle, and physical resilience through periodized progressive overload.",
+    "overview": {
+      "description": "Designed for athletes looking to develop maximum force and lean hypertrophy. The curriculum combines heavy multi-joint lifts (Squat, Bench Press, Deadlift, Overhead Press) with high-quality accessory targeting. Using a structured percentage-based loading scheme, you will break plateaus, improve joint density, and build a lasting power foundation.",
+      "goal": "Increase 1RM force, build skeletal muscle mass, and improve structural stability.",
+      "duration": "12 Weeks (3 blocks of 4 weeks)",
+      "difficulty": "Intermediate to Advanced",
+      "muscleGroups": ["Pectorals", "Latissimus Dorsi", "Quadriceps", "Hamstrings", "Gluteals", "Deltoids", "Core"]
+    },
+    "faqs": [
+      {
+        "q": "Do I need prior lifting experience?",
+        "a": "Yes, basic familiarity with barbell compound movements is recommended. However, our coaches will customize the load percentages based on your starting strength."
+      },
+      {
+        "q": "How many days per week is this program?",
+        "a": "It is designed as a 4-day or 5-day split depending on the training block you select (Push/Pull/Legs or Upper/Lower)."
+      },
+      {
+        "q": "Is nutrition support provided?",
+        "a": "Absolutely. You can use our built-in macro calculator and custom meal guides specifically optimized for strength development."
+      }
+    ],
+    "reviews": [
+      {
+        "name": "David K.",
+        "comment": "My deadlift went up by 45kg in just one cycle! The coaching and progressive overload splits are world-class.",
+        "rating": 5
+      },
+      {
+        "name": "Sarah T.",
+        "comment": "I love the Upper-Lower split. The workouts are intense but extremely structured. Best shape of my life.",
+        "rating": 5
+      }
+    ]
+  },
+  "hiit": {
+    "title": "HIIT",
+    "difficulty": "All Levels",
+    "duration": "8 Weeks",
+    "bannerText": "High Intensity Interval Training engineered to maximize cardiorespiratory capacity and fat oxidation.",
+    "overview": {
+      "description": "HIIT combines short bursts of intense anaerobic exercise with recovery periods. By driving your heart rate to 85-95% of its maximum capacity, you trigger the Excess Post-Exercise Oxygen Consumption (EPOC) effect, causing your body to burn calories for up to 24 hours after the workout ends. Ideal for quick endurance and fat loss.",
+      "goal": "Torch calories, raise VO2 Max, and elevate metabolic conditioning.",
+      "duration": "8 Weeks (3 sessions per week)",
+      "difficulty": "Scalable for All Levels",
+      "muscleGroups": ["Full Body Cardio", "Core", "Quads", "Shoulders"]
+    },
+    "faqs": [
+      {
+        "q": "Can I do HIIT if I have joint pain?",
+        "a": "Our coaches provide low-impact modifications for all explosive movements (like replacing jump squats with air squats) to protect your knees and lower back."
+      },
+      {
+        "q": "What is the average calorie burn per session?",
+        "a": "An average session burns between 400 to 700 calories depending on your body weight and intensity levels."
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Emily R.",
+        "comment": "Fast, brutal, and incredibly effective. The countdown timer inside the dashboard keeps me focused during home sessions.",
+        "rating": 5
+      },
+      {
+        "name": "Jason M.",
+        "comment": "I have dropped 6% body fat in 6 weeks. The interval splits are challenging but keep you highly motivated.",
+        "rating": 5
+      }
+    ]
+  },
+  "crossfit": {
+    "title": "CrossFit",
+    "difficulty": "Intermediate - Advanced",
+    "duration": "Ongoing",
+    "bannerText": "Forge elite physical preparedness. Constantly varied functional movements executed at high intensity.",
+    "overview": {
+      "description": "CrossFit blends Olympic weightlifting, gymnastics, and high-intensity metabolic conditioning. Workouts are structured around the Workout of the Day (WOD), testing key benchmark routines (Murph, Fran, Helen) that challenge strength, speed, coordination, and mental grit. Prepare to enter an active athlete community.",
+      "goal": "Develop well-rounded physical capabilities across strength, stamina, speed, and agility.",
+      "duration": "Ongoing / Weekly WOD cycles",
+      "difficulty": "Intermediate to Elite",
+      "muscleGroups": ["Full Body Integration", "Posterior Chain", "Shoulder girdle", "Core"]
+    },
+    "faqs": [
+      {
+        "q": "What is a WOD?",
+        "a": "WOD stands for Workout of the Day. It is the core exercise protocol prescribed by our coaches every day, utilizing unique combinations of movements."
+      },
+      {
+        "q": "How do I scale the Olympic lifts?",
+        "a": "All benchmark lifts can be scaled. We offer variations ranging from PVC pipes for form practice to lighter dumbbells before moving to heavy barbells."
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Marcus L.",
+        "comment": "The community here is unbelievable. Doing 'Murph' with the coaches pushing you is an experience you won't get elsewhere.",
+        "rating": 5
+      },
+      {
+        "name": "Elena P.",
+        "comment": "My clean and jerk form improved massively thanks to the Olympic lifting skill sessions. Invaluable details.",
+        "rating": 5
+      }
+    ]
+  },
+  "functional-fitness": {
+    "title": "Functional Fitness",
+    "difficulty": "Beginner - Intermediate",
+    "duration": "10 Weeks",
+    "bannerText": "Train for life, sport, and longevity. Enhance balance, mobility, and core force generation.",
+    "overview": {
+      "description": "Functional Fitness mimics real-world multi-planar movements. The program prioritizes rotational power, core stability, balance, and joint integrity. Utilizing functional tools like battle ropes, sleds, kettlebells, and medicine balls, you will build dynamic strength that translates directly to everyday movements, sports performance, and longevity.",
+      "goal": "Improve movement biomechanics, reduce injury risks, and develop stabilizer muscle activation.",
+      "duration": "10 Weeks (3-4 days per week)",
+      "difficulty": "Beginner to Intermediate",
+      "muscleGroups": ["Core stabilizers", "Hip abductors", "Scapular stabilizers", "Rotator Cuff"]
+    },
+    "faqs": [
+      {
+        "q": "How does this differ from traditional weightlifting?",
+        "a": "Traditional lifting isolates single muscle groups on fixed paths. Functional fitness trains integrated movements across multiple planes of motion (sagittal, frontal, transverse)."
+      },
+      {
+        "q": "Is this program suitable for older adults?",
+        "a": "Yes! Functional fitness is highly recommended for longevity and joint protection, and can be customized to match any age or fitness range."
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Robert H.",
+        "comment": "My chronic lower back stiffness is completely gone. Learning proper hip hinging and core brace techniques changed everything.",
+        "rating": 5
+      },
+      {
+        "name": "Maya S.",
+        "comment": "The sled pulls and battle rope circuits are an incredible workout. Dynamic, athletic, and keeps you alert.",
+        "rating": 5
+      }
+    ]
+  },
+  "yoga": {
+    "title": "Yoga",
+    "difficulty": "Beginner - Intermediate",
+    "duration": "Ongoing",
+    "bannerText": "Restore dynamic balance, mental clarity, and deep flexibility through vinyasa and mindfulness.",
+    "overview": {
+      "description": "A comprehensive yoga and mobility curriculum that fuses Hatha, Vinyasa, and Yin formats. Focus on combining conscious respiration (pranayama) with isometric posture holds (asanas) to expand range of motion, build core endurance, release deep myofascial tension, and center the mind. Ideal for recovery, posture correction, and stress relief.",
+      "goal": "Increase joint mobility, practice mindfulness, reduce stress hormones, and build functional core strength.",
+      "duration": "Ongoing / Daily practice blocks",
+      "difficulty": "Beginner to Intermediate",
+      "muscleGroups": ["Deep core", "Hip flexors", "Hamstrings", "Spinal erectors"]
+    },
+    "faqs": [
+      {
+        "q": "Do I need to be flexible to start?",
+        "a": "Not at all. Yoga is the path to flexibility, not the prerequisite. We use blocks, straps, and alternative postures to make every session accessible."
+      },
+      {
+        "q": "Can I combine this with heavy lifting?",
+        "a": "Yes, it is highly recommended as active recovery to stretch tight fascia, release lactic acid, and optimize joint range of motion."
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Christina W.",
+        "comment": "The meditation timer and mindfulness guides are part of my daily routine now. My posture has improved noticeably.",
+        "rating": 5
+      },
+      {
+        "name": "Ethan B.",
+        "comment": "As a runner, my hamstrings were always locked. Adding two Vinyasa classes a week has completely opened up my stride.",
+        "rating": 5
+      }
+    ]
+  },
+  "cardio": {
+    "title": "Cardio",
+    "difficulty": "All Levels",
+    "duration": "Ongoing",
+    "bannerText": "Build a robust aerobic engine. Zone-based conditioning workouts to improve endurance and heart health.",
+    "overview": {
+      "description": "Elevate your cardiovascular performance through heart-rate zone-based training. Combining running, rowing, and indoor cycling, this program focuses on maintaining target aerobic output to optimize mitochondria density, lower resting heart rate, and build lung capacity. Train smart using VO2 Max metrics and interval challenges.",
+      "goal": "Improve VO2 Max, elevate stamina, lower resting heart rate, and support weight management.",
+      "duration": "Ongoing / Custom conditioning logs",
+      "difficulty": "Scalable for All Levels",
+      "muscleGroups": ["Cardiovascular System", "Calves", "Hamstrings", "Quadriceps"]
+    },
+    "faqs": [
+      {
+        "q": "What is VO2 Max?",
+        "a": "VO2 Max is the maximum rate of oxygen your body can consume during exercise. It is the gold standard metric for cardiovascular fitness."
+      },
+      {
+        "q": "How do I monitor my heart rate zones?",
+        "a": "We hook up wearable monitors (Apple Watch, Garmin, Polar) to track your active heart rate zones (Zone 2 for aerobic base, Zone 5 for anaerobic max)."
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Luke D.",
+        "comment": "Completed my first 10K running challenge thanks to the pacing guides! Uptime training works wonders.",
+        "rating": 5
+      },
+      {
+        "name": "Anna V.",
+        "comment": "I love the Zone 2 endurance blocks. Kept my energy levels steady throughout the week without burnout.",
+        "rating": 5
+      }
+    ]
+  },
+  "body-transformation": {
+    "title": "Body Transformation",
+    "difficulty": "All Levels",
+    "duration": "12 Weeks",
+    "bannerText": "The ultimate 12-week body recomposition blueprint. Fusing custom weight training, nutrition, and weekly check-ins.",
+    "overview": {
+      "description": "Our premier 12-week body recomposition system. This program is for individuals looking to simultaneously shed body fat and build lean, defined muscle. Combining targeted strength splits with precision macro meal planning, body metrics assessment, and intensive accountability tracking, we turn goals into visible, sustainable physical changes.",
+      "goal": "Lose adipose tissue, build skeletal muscle, optimize body composition ratio, and cultivate habits.",
+      "duration": "12 Weeks (Full curriculum phases)",
+      "difficulty": "All Levels (Highly customized)",
+      "muscleGroups": ["Full Body Recomposition"]
+    },
+    "faqs": [
+      {
+        "q": "How does body recomposition work?",
+        "a": "Recomposition focuses on fat loss and muscle gain concurrently by training with progressive resistance while maintaining a slight calorie deficit with high protein targets."
+      },
+      {
+        "q": "What do the weekly check-ins involve?",
+        "a": "Every week we assess weight, body fat %, muscle mass, waist measurements, and progress photos to fine-tune your nutrition and workout load."
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Nate G.",
+        "comment": "Lost 12kg of fat and gained 4kg of muscle in 3 months. The macro meal planner made it extremely manageable to stay on track.",
+        "rating": 5
+      },
+      {
+        "name": "Sophia F.",
+        "comment": "Simply life-changing. The support structure and progress charts keep you accountable every single day.",
+        "rating": 5
+      }
+    ]
+  },
+  "personal-coaching": {
+    "title": "Personal Coaching",
+    "difficulty": "All Levels",
+    "duration": "Ongoing",
+    "bannerText": "1-on-1 premium coaching tailored exclusively to your biology, schedule, and athletic aspirations.",
+    "overview": {
+      "description": "Receive undivided attention from an elite personal trainer. The program begins with an in-depth biomechanical and lifestyle assessment to map a customized training split, dynamic diet, and recovery schedule. Includes real-time form checks, messaging support, and weekly video consultations to optimize results.",
+      "goal": "Accelerated target achievement, perfect movement execution, and tailored athletic development.",
+      "duration": "Ongoing / Monthly renewal",
+      "difficulty": "Customized for All Levels",
+      "muscleGroups": ["Targeted to personal physical needs"]
+    },
+    "faqs": [
+      {
+        "q": "How are sessions booked?",
+        "a": "You can book directly via the dashboard calendar, choosing available slots that fit your schedule. Postponements require a 12-hour notice."
+      },
+      {
+        "q": "Can I choose my personal trainer?",
+        "a": "Yes! You can view detailed trainer profiles, specializations, and student reviews to choose the coach that matches your goals."
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Kevin P.",
+        "comment": "Having a dedicated trainer correct my squat form and design my diet transformed my progress. Highly recommended investment.",
+        "rating": 5
+      },
+      {
+        "name": "Clara M.",
+        "comment": "The messaging support is amazing. If I have a question at the grocery store about macros, my coach answers within minutes.",
+        "rating": 5
+      }
+    ]
+  }
+}
