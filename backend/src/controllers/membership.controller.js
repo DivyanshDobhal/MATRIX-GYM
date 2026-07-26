@@ -1,4 +1,8 @@
+import Membership from '../models/Membership.js';
+import User from '../models/User.js';
+import googleSheetsService from '../services/googleSheetsService.js';
 import ApiResponse from '../utils/ApiResponse.js';
+import ApiError from '../utils/ApiError.js';
 
 class MembershipController {
   /**
@@ -45,6 +49,44 @@ class MembershipController {
       new ApiResponse(200, plans, 'Membership plans retrieved successfully.').send(res);
     } catch (error) {
       next(error);
+    }
+  };
+
+  /**
+   * Purchase a membership plan
+   */
+  purchaseMembership = async (req, res, next) => {
+    try {
+      const { name, email, plan, amount } = req.body;
+      
+      // We assume user is authenticated and req.user exists, 
+      // but we handle graceful fallback for generic requests if needed.
+      const userId = req.user?.id || null;
+
+      let newMembership = null;
+      if (userId) {
+        newMembership = await Membership.create({
+          userId,
+          plan,
+          status: 'Active'
+        });
+
+        // Also update the User's current membership
+        await User.findByIdAndUpdate(userId, { membership: plan });
+      }
+
+      // Log to Google Sheets silently
+      await googleSheetsService.appendMembership({
+        name,
+        email,
+        plan,
+        amount,
+        paymentStatus: 'Paid'
+      });
+
+      new ApiResponse(200, { membership: newMembership }, 'Membership purchased successfully.').send(res);
+    } catch (error) {
+      next(new ApiError(500, error.message || 'Failed to purchase membership.'));
     }
   };
 }

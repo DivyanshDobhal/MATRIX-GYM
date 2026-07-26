@@ -1,4 +1,7 @@
+import TrainerBooking from '../models/TrainerBooking.js';
+import googleSheetsService from '../services/googleSheetsService.js';
 import ApiResponse from '../utils/ApiResponse.js';
+import ApiError from '../utils/ApiError.js';
 
 class TrainerController {
   /**
@@ -36,6 +39,37 @@ class TrainerController {
       new ApiResponse(200, trainers, 'Elite trainers retrieved successfully.').send(res);
     } catch (error) {
       next(error);
+    }
+  };
+
+  /**
+   * Book a trainer consultation
+   */
+  bookTrainer = async (req, res, next) => {
+    try {
+      const { name, email, trainer, preferredTime } = req.body;
+      const userId = req.user?.id || null;
+
+      // Save to MongoDB
+      const newBooking = await TrainerBooking.create({
+        userId,
+        name,
+        email,
+        trainer,
+        preferredTime
+      });
+
+      // Log to Google Sheets silently
+      await googleSheetsService.appendTrainerBooking({
+        name,
+        email,
+        trainer,
+        preferredTime
+      });
+
+      new ApiResponse(200, { booking: newBooking }, 'Trainer consultation booked successfully.').send(res);
+    } catch (error) {
+      next(new ApiError(500, error.message || 'Failed to book trainer consultation.'));
     }
   };
 }

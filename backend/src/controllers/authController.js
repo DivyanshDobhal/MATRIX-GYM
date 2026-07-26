@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import firebaseAdmin from '../config/firebase.js';
 import crypto from 'crypto';
 import axios from 'axios';
+import googleSheetsService from '../services/googleSheetsService.js';
 
 // Generate JWT and send in cookie
 const sendTokenResponse = (user, statusCode, res) => {
@@ -58,6 +59,16 @@ export const register = async (req, res) => {
       height,
       weight,
       fitnessGoal,
+    });
+
+    // Append to Google Sheets silently
+    await googleSheetsService.appendRegistration({
+      name: `${firstName} ${lastName}`,
+      email,
+      phone: phoneNumber,
+      provider: 'Local',
+      membership: 'None',
+      source: 'Web Registration'
     });
 
     sendTokenResponse(user, 201, res);
@@ -134,6 +145,16 @@ export const googleAuth = async (req, res) => {
         firebaseUid: uid,
         profileImage: picture,
         isEmailVerified: true,
+      });
+
+      // Log new Google Auth user to Google Sheets silently
+      await googleSheetsService.appendRegistration({
+        name,
+        email,
+        phone: 'N/A',
+        provider: 'Google',
+        membership: 'None',
+        source: 'OAuth'
       });
     }
 
