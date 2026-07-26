@@ -8,7 +8,7 @@ Welcome to the **MATRIX Fitness Platform**, a premium, state-of-the-art web appl
 
 The platform is professionally hosted and accessible globally via Vercel:
 
-- **Frontend (Live App):** [https://matrix-fitness-source.vercel.app](https://github.com/DivyanshDobhal/MATRIX-GYM)
+- **Frontend (Live App):** [https://matrix-fitness-source.vercel.app](https://matrix-fitness-source.vercel.app)
 - **Backend (Live API):** [https://server-ashy-rho.vercel.app](https://server-ashy-rho.vercel.app)
 
 ---
