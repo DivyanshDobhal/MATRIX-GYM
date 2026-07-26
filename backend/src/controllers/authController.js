@@ -34,7 +34,11 @@ const sendTokenResponse = (user, statusCode, res) => {
 // @access  Public
 export const register = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, phoneNumber, gender, age, height, weight, fitnessGoal } = req.body;
+    let { firstName, lastName, email, password, phoneNumber, gender, age, height, weight, fitnessGoal } = req.body;
+    
+    // Sanitize inputs
+    if (email) email = email.trim().toLowerCase();
+    if (password) password = password.trim();
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -67,11 +71,15 @@ export const register = async (req, res) => {
 // @access  Public
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Please provide email and password' });
     }
+
+    // Sanitize inputs
+    email = email.trim().toLowerCase();
+    password = password.trim();
 
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
